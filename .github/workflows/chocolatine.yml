@@ -16,7 +16,7 @@ jobs:
   check_compilation_and_coding_style:
     name: Check compilation and coding style
     runs-on: ubuntu-latest
-    if: ${{ github.repository != vars.MIRROR_REPO || github.event_name == 'push' }}
+    if: github.repository != vars.MIRROR_REPO
     container:
       image: epitechcontent/epitest-docker
     steps:
@@ -54,8 +54,7 @@ jobs:
 
       - name: Verify executables exist and are executable
         run: |
-          IFS=',' read -ra EXECS <<< "$EXECUTABLES"
-          for exec in "${EXECS[@]}"; do
+          for exec in $(echo "$EXECUTABLES" | tr ',' ' '); do
             exec=$(echo "$exec" | xargs)
             if [ ! -f "$exec" ]; then
               echo "::error::Executable '$exec' not found"
@@ -87,7 +86,7 @@ jobs:
     name: Push to mirror repository
     runs-on: ubuntu-latest
     needs: run_tests
-    if: ${{ github.event_name == 'push' }}
+    if: github.event_name == 'push'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
